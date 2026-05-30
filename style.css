@@ -1,0 +1,231 @@
+:root {
+  --bg-color: #050505;
+  --card-bg: #111111;
+  --text-color: #e0e0e0;
+  --accent-color: #8b0000;
+  --border-color: #2a2a2a;
+  --glitch-color: #ff0000;
+}
+
+body,
+html {
+  margin: 0;
+  padding: 0;
+  width: 100%;
+  height: 100%;
+  font-family: "Helvetica Neue", Arial, "Noto Sans TC", sans-serif;
+  background-color: var(--bg-color);
+  color: var(--text-color);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  transition: all 0.8s ease;
+  overflow: hidden;
+}
+
+/* ===== 1. 懸疑封面樣式 ===== */
+#cover-page {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  background: radial-gradient(circle at center, #1a0000 0%, #000000 70%);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  transition: opacity 1s ease, visibility 1s;
+}
+
+@keyframes titleFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.cover-title {
+  font-size: 3rem;
+  font-weight: 700;
+  letter-spacing: 5px;
+  color: #ffffff;
+  margin-bottom: 10px;
+  text-align: center;
+  animation: titleFloat 4s infinite ease-in-out;
+}
+
+.cover-subtitle {
+  font-size: 1rem;
+  color: #888;
+  letter-spacing: 2px;
+  margin-bottom: 80px;
+}
+
+.start-btn {
+  background-color: transparent;
+  border: 1px solid #444;
+  color: #aaa;
+  padding: 15px 40px;
+  font-size: 1.1rem;
+  letter-spacing: 3px;
+  cursor: pointer;
+  transition: all 0.3s;
+  border-radius: 4px;
+  position: relative;
+}
+
+.start-btn:hover {
+  color: #fff;
+  border-color: var(--accent-color);
+  box-shadow: 0 0 15px rgba(139, 0, 0, 0.5);
+  transform: scale(1.05);
+}
+
+.start-btn:hover::after {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  border: 1px solid var(--accent-color);
+  animation: extreme-shake 0.6s infinite;
+  opacity: 0.5;
+}
+
+.cover-warning {
+  margin-top: 20px;
+  font-size: 0.8rem;
+  color: #444;
+  font-style: italic;
+}
+
+/* ===== 2. 測驗主體樣式 ===== */
+.quiz-container {
+  background-color: var(--card-bg);
+  padding: 40px;
+  border-radius: 8px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+  max-width: 500px;
+  width: 100%;
+  transition: all 0.5s ease;
+  position: relative;
+  opacity: 0;
+  transform: translateY(20px);
+}
+
+.quiz-container.show {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.progress-bar {
+  height: 3px;
+  background-color: #222;
+  border-radius: 2px;
+  margin-bottom: 35px;
+  overflow: hidden;
+}
+
+.progress {
+  height: 100%;
+  width: 0%;
+  background-color: var(--accent-color);
+  transition: width 0.4s ease;
+}
+
+.question {
+  font-size: 1.2rem;
+  margin-bottom: 30px;
+  line-height: 1.6;
+  color: #ffffff;
+}
+
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.btn {
+  background-color: #1a1a1a;
+  border: 1px solid #333;
+  padding: 16px 20px;
+  border-radius: 6px;
+  text-align: left;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  color: #ccc;
+}
+
+.btn:hover:not([disabled]) {
+  background-color: #252525;
+  border-color: #555;
+  color: #fff;
+}
+
+.input-field {
+  width: 100%;
+  padding: 16px;
+  box-sizing: border-box;
+  border: 1px solid #333;
+  border-radius: 6px;
+  background: #0a0a0a;
+  color: #fff;
+  font-size: 1rem;
+  margin-bottom: 15px;
+}
+
+.error-msg {
+  color: var(--glitch-color);
+  font-size: 0.95rem;
+  margin-top: 10px;
+  display: none;
+  font-weight: bold;
+}
+
+/* 【修改：減少抖動頻率，拉長靜止等待期，降低崩壞時的視覺負擔】 */
+@keyframes extreme-shake {
+  0%,
+  75%,
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  25% {
+    transform: translate(-1px, 1px) rotate(-0.5deg);
+  }
+  30% {
+    transform: translate(1px, -1px) rotate(0.5deg);
+  }
+  35% {
+    transform: translate(-1px, -1px) rotate(0deg);
+  }
+  40% {
+    transform: translate(1px, 1px) rotate(-0.5deg);
+  }
+  45% {
+    transform: translate(-1px, 1px) rotate(0.5deg);
+  }
+}
+
+.shake {
+  animation: extreme-shake 0.6s infinite ease-in-out;
+}
+
+@keyframes red-flash {
+  0%,
+  100% {
+    background-color: #000;
+  }
+  50% {
+    background-color: #1a0000;
+  }
+}
+
+.flash-bg {
+  animation: red-flash 0.4s infinite;
+}
