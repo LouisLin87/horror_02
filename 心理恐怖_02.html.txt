@@ -1,0 +1,469 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>日常心理健康與壓力適應度測驗</title>
+    <style>
+        :root {
+            --bg-color: #050505; 
+            --card-bg: #111111;
+            --text-color: #e0e0e0;
+            --accent-color: #8b0000; 
+            --border-color: #2a2a2a;
+            --glitch-color: #ff0000;
+        }
+
+        body, html {
+            margin: 0;
+            padding: 0;
+            width: 100%;
+            height: 100%;
+            font-family: "Helvetica Neue", Arial, "Noto Sans TC", sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: all 0.8s ease;
+            overflow: hidden; 
+        }
+
+        /* ===== 1. 懸疑封面樣式 ===== */
+        #cover-page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at center, #1a0000 0%, #000000 70%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 100; 
+            transition: opacity 1s ease, visibility 1s;
+        }
+
+        @keyframes titleFloat {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-5px); }
+        }
+
+        .cover-title {
+            font-size: 3rem;
+            font-weight: 700;
+            letter-spacing: 5px;
+            color: #ffffff;
+            margin-bottom: 10px;
+            text-align: center;
+            animation: titleFloat 4s infinite ease-in-out;
+        }
+
+        .cover-subtitle {
+            font-size: 1rem;
+            color: #888;
+            letter-spacing: 2px;
+            margin-bottom: 80px;
+        }
+
+        .start-btn {
+            background-color: transparent;
+            border: 1px solid #444;
+            color: #aaa;
+            padding: 15px 40px;
+            font-size: 1.1rem;
+            letter-spacing: 3px;
+            cursor: pointer;
+            transition: all 0.3s;
+            border-radius: 4px;
+            position: relative;
+        }
+
+        .start-btn:hover {
+            color: #fff;
+            border-color: var(--accent-color);
+            box-shadow: 0 0 15px rgba(139, 0, 0, 0.5);
+            transform: scale(1.05);
+        }
+
+        .start-btn:hover::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            border: 1px solid var(--accent-color);
+            animation: extreme-shake 0.6s infinite;
+            opacity: 0.5;
+        }
+
+        .cover-warning {
+            margin-top: 20px;
+            font-size: 0.8rem;
+            color: #444;
+            font-style: italic;
+        }
+
+        /* ===== 2. 測驗主體樣式 ===== */
+        .quiz-container {
+            background-color: var(--card-bg);
+            padding: 40px;
+            border-radius: 8px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            max-width: 500px;
+            width: 100%;
+            transition: all 0.5s ease;
+            position: relative;
+            opacity: 0; 
+            transform: translateY(20px);
+        }
+
+        .quiz-container.show {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .progress-bar {
+            height: 3px;
+            background-color: #222;
+            border-radius: 2px;
+            margin-bottom: 35px;
+            overflow: hidden;
+        }
+
+        .progress {
+            height: 100%;
+            width: 0%;
+            background-color: var(--accent-color);
+            transition: width 0.4s ease;
+        }
+
+        .question {
+            font-size: 1.2rem;
+            margin-bottom: 30px;
+            line-height: 1.6;
+            color: #ffffff;
+        }
+
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .btn {
+            background-color: #1a1a1a;
+            border: 1px solid #333;
+            padding: 16px 20px;
+            border-radius: 6px;
+            text-align: left;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #ccc;
+        }
+
+        .btn:hover:not([disabled]) {
+            background-color: #252525;
+            border-color: #555;
+            color: #fff;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 16px;
+            box-sizing: border-box;
+            border: 1px solid #333;
+            border-radius: 6px;
+            background: #0a0a0a;
+            color: #fff;
+            font-size: 1rem;
+            margin-bottom: 15px;
+        }
+
+        .error-msg {
+            color: var(--glitch-color);
+            font-size: 0.95rem;
+            margin-top: 10px;
+            display: none;
+            font-weight: bold;
+        }
+
+        /* 【修改：減少抖動頻率，拉長靜止等待期，降低崩壞時的視覺負擔】 */
+        @keyframes extreme-shake {
+            0%, 75%, 100% { transform: translate(0, 0) rotate(0deg); }
+            80% { transform: translate(-1px, 1px) rotate(-0.5deg); }
+            85% { transform: translate(1px, -1px) rotate(0.5deg); }
+            90% { transform: translate(-1px, -1px) rotate(0deg); }
+            93% { transform: translate(1px, 1px) rotate(-0.5deg); }
+            97% { transform: translate(-1px, 1px) rotate(0.5deg); }
+        }
+        .shake { animation: extreme-shake 0.6s infinite ease-in-out; }
+
+        @keyframes red-flash { 0%, 100% { background-color: #000; } 50% { background-color: #1a0000; } }
+        .flash-bg { animation: red-flash 0.4s infinite; }
+    </style>
+</head>
+<body>
+
+<div id="cover-page">
+    <div class="cover-title">日常心理健康測驗</div>
+    <div class="cover-subtitle">深度認知與壓力風險評估 (Ver 3.0)</div>
+    
+    <button class="start-btn" onclick="startQuiz()">開始測驗</button>
+    
+    <div class="cover-warning">※ 請確保您的裝置已開啟聲音（建議配戴耳機）。</div>
+</div>
+
+<div class="quiz-container" id="quiz-box">
+    <div class="progress-bar"><div class="progress" id="progress"></div></div>
+    <div id="quiz-content"></div>
+</div>
+
+<script>
+    // 【優化：iOS 設備精準環境偵測】
+    const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    const os = isIOS ? "iOS (iPhone/iPad)" : navigator.platform;
+
+    const now = new Date();
+    const timeString = `${now.getHours()}點${now.getMinutes()}分`;
+
+    const quizData = [
+        { q: "第 1 題：你通常如何處理生活中的壓力？", type: "radio", options: ["(A) 與朋友傾訴", "(B) 獨自運動或閱讀", "(C) 聽音樂放鬆"] },
+        { q: "第 2 題：你現在填寫問卷時，房門是關上的嗎？", type: "radio", options: ["(A) 是的，已經關好", "(B) 沒有，是打開的", "(C) 關上了，但我總覺得沒鎖好"] },
+        { q: `第 3 題：現在時間是 <b>${timeString}</b>。在這個獨處的時刻，你相信身後有無法用科學解釋的視線嗎？`, type: "radio", options: ["(A) 完全不相信", "(B) 半信半疑", "(C) 它們現在就§在房間裡"] },
+        { q: `第 4 題：<del>你覺得你今天能平安入睡嗎？</del> <br><span style="font-size:0.8rem; color:#666;">(偵測到您正使用 ${os} 設備，系統已鎖定)</span>`, type: "radio", options: ["(A) 可以", "(B) 不可以", "(C) 拜託讓我選這個選項"] },
+        { q: "第 5 題：當你凝視螢幕時，你是否感覺到螢幕背後有雙眼̖͓͖͔̗̯̪眸̌̑̎̔͑̌̅？", type: "radio", options: ["(A) 沒 有", "(B) 有 點 影 響", "(C) 祂̖͓̑̋̎̋ 正在看"] },
+        { q: "如果你現在回頭會看到祂，你千萬不要回頭。", type: "radio", options: ["(A) 我不回頭", "(B) 我不回頭", "(C) 我不回頭", "(D) [錯誤：此選項已被剝奪]"] },
+        { q: "H̷E̷L̷P̷M̷E̷ 傳輸錯誤。請輸入你聽到的心跳聲次數：", type: "input", options: [] },
+        { q: "🕈︎☠︎🕈︎☟︎✡︎ 🕈︎☟︎✡︎ 為什麼不聽話？", type: "radio", options: [" ", "☠︎", "☠︎ ☠︎ ☠︎"] },
+        { q: "謝謝填答。祂已經知道你在哪裡了。", type: "radio", options: ["(A) 接受", "(B) 接受", "(C) 接受"] }
+    ];
+
+    let currentIdx = 0;
+    let actionTimer = null; // 【新增：無動作倒數計時器全域變數】
+    const quizContent = document.getElementById('quiz-content');
+    const progress = document.getElementById('progress');
+    const quizBox = document.getElementById('quiz-box');
+    const coverPage = document.getElementById('cover-page');
+
+    // =======================================================
+    // 🎛️ WEB AUDIO API 懸疑環境音控制區
+    // =======================================================
+    let audioCtx = null;
+    let mainDrone = null;
+    let subDrone = null;
+    let mainGain = null; 
+    let heartbeatInterval = null;
+    
+    let heartbeatSpeed = 1200; 
+
+    function initHorrorAudio() {
+        // 【優化：相容 iOS 的 Web Audio 環境宣告】
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        
+        mainDrone = audioCtx.createOscillator();
+        mainGain = audioCtx.createGain();
+        mainDrone.type = 'sine';
+        mainDrone.frequency.setValueAtTime(55, audioCtx.currentTime); 
+        
+        mainGain.gain.setValueAtTime(1.00, audioCtx.currentTime); 
+        
+        subDrone = audioCtx.createOscillator();
+        let subGain = audioCtx.createGain();
+        subDrone.type = 'sawtooth'; 
+        subDrone.frequency.setValueAtTime(57, audioCtx.currentTime);
+        
+        subGain.gain.setValueAtTime(0.02, audioCtx.currentTime); 
+        
+        let filter = audioCtx.createBiquadFilter();
+        filter.type = 'lowpass';
+        filter.frequency.setValueAtTime(120, audioCtx.currentTime);
+
+        mainDrone.connect(mainGain);
+        subDrone.connect(subGain);
+        mainGain.connect(filter);
+        subGain.connect(filter);
+        filter.connect(audioCtx.destination);
+
+        mainDrone.start();
+        subDrone.start();
+
+        startHeartbeat();
+    }
+
+    function playSingleBeat() {
+        if (!audioCtx) return;
+        let osc = audioCtx.createOscillator();
+        let gain = audioCtx.createGain();
+        osc.type = 'triangle';
+        osc.frequency.setValueAtTime(60, audioCtx.currentTime); 
+        osc.frequency.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+        
+        gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+        
+        gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start();
+        osc.stop(audioCtx.currentTime + 0.4);
+    }
+
+    function startHeartbeat() {
+        if (heartbeatInterval) clearInterval(heartbeatInterval);
+        heartbeatInterval = setInterval(() => {
+            playSingleBeat();
+            setTimeout(() => { playSingleBeat(); }, 250);
+        }, heartbeatSpeed);
+    }
+
+    // ==========================================
+    // 🎮 遊戲邏輯與計時器控制
+    // ==========================================
+    function startQuiz() {
+        coverPage.style.opacity = '0';
+        coverPage.style.visibility = 'hidden';
+        
+        try {
+            initHorrorAudio();
+            // 【優化：專為 iOS 激活音訊核心權限】
+            if (audioCtx && audioCtx.state === 'suspended') {
+                audioCtx.resume();
+            }
+        } catch(e) {
+            console.log("音訊啟動被瀏覽器阻擋:", e);
+        }
+        
+        setTimeout(() => {
+            quizBox.classList.add('show');
+            renderQuestion();
+        }, 500);
+    }
+
+    // 【新增功能：設定 15 秒沒有動作的計時器】
+    function startQuestionTimer() {
+        clearTimeout(actionTimer);
+        actionTimer = setTimeout(() => {
+            alert("你是不是猶豫了!");
+            triggerFullscreen();
+            nextQuestion();
+        }, 15000);
+    }
+
+    // 輸入框打字時同步重設 15 秒計時
+    function resetTimerOnInput() {
+        startQuestionTimer();
+    }
+
+    function renderQuestion() {
+        // 進入任何題目，重新載入 15 秒計時器
+        startQuestionTimer();
+
+        const data = quizData[currentIdx];
+        progress.style.width = ((currentIdx + 1) / quizData.length) * 100 + "%";
+
+        if (currentIdx === 3) { 
+            quizBox.style.borderColor = "#440000";
+            document.title = "警告：檢測到環境異常";
+            
+            if (mainDrone && audioCtx) mainDrone.frequency.setValueAtTime(70, audioCtx.currentTime);
+            
+            heartbeatSpeed = 800; 
+            startHeartbeat();
+        } 
+        else if (currentIdx === 6) { 
+            document.body.classList.add('flash-bg');
+            quizBox.style.backgroundColor = "#000000";
+            quizBox.style.borderColor = "#ff0000";
+            quizBox.classList.add('shake');
+            document.title = "H E L P";
+            document.body.style.cursor = 'none'; 
+            
+            if (mainDrone && mainGain && audioCtx) {
+                mainDrone.type = 'sawtooth';
+                mainDrone.frequency.setValueAtTime(110, audioCtx.currentTime);
+                mainGain.gain.setValueAtTime(1.0, audioCtx.currentTime); 
+            }
+            
+            heartbeatSpeed = 350; 
+            startHeartbeat();
+        }
+
+        let html = `<div class="question">${data.q}</div>`;
+
+        if (data.type === "radio") {
+            html += `<div class="options">`;
+            data.options.forEach((opt, index) => {
+                if (currentIdx === 5 && index === 3) {
+                    html += `<button class="btn" style="color:#333; border-color:#222; cursor:not-allowed;" disabled>${opt}</button>`;
+                } else {
+                    html += `<button class="btn" onclick="triggerFullscreen(); nextQuestion();">${opt}</button>`;
+                }
+            });
+            html += `</div>`;
+        } else if (data.type === "input") {
+            html += `
+                <input type="text" id="heartbeat-input" class="input-field" placeholder="...牠在跳..." oninput="resetTimerOnInput()">
+                <button class="btn" style="text-align:center; background:#440000; color:#fff; border:none;" onclick="checkInput()">送出數據</button>
+                <div id="err" class="error-msg">數字不對。祂就在你身後。</div>
+            `;
+        }
+
+        quizContent.innerHTML = html;
+    }
+
+    // 【優化：iOS 與各瀏覽器全螢幕 API 的防範與相容機制】
+    function triggerFullscreen() {
+        try {
+            if (currentIdx >= 1 && !document.fullscreenElement && !document.webkitFullscreenElement) {
+                let elem = document.documentElement;
+                if (elem.requestFullscreen) {
+                    elem.requestFullscreen().catch(() => {});
+                } else if (elem.webkitRequestFullscreen) {
+                    elem.webkitRequestFullscreen(); // Safari / iOS 專用
+                }
+            }
+        } catch(e) {
+            console.log("此裝置安全封鎖全螢幕功能");
+        }
+    }
+
+    function nextQuestion() {
+        clearTimeout(actionTimer); // 正常前往下一題，清除倒數計時器
+        
+        if (currentIdx < quizData.length - 1) {
+            currentIdx++;
+            renderQuestion();
+        } else {
+            // 終局：音效斷電
+            if (mainDrone) mainDrone.stop();
+            if (subDrone) subDrone.stop();
+            if (heartbeatInterval) clearInterval(heartbeatInterval);
+            if (audioCtx) audioCtx.close();
+            
+            document.body.classList.remove('flash-bg');
+            document.body.style.backgroundColor = "#000000";
+            document.body.innerHTML = `
+                <div style="color:#ff0000; font-family:monospace; text-align:center; width:100%; display:flex; flex-direction:column; justify-content:center; align-items:center; height:100vh;">
+                    <p style="font-size:2rem; margin-bottom:10px;">[ FATAL ERROR ]</p>
+                    <p style="color:#666; font-size:1rem;">已成功上傳定位數據。連線已中斷。</p>
+                    <p style="font-size:1.5rem; margin-top:50px; letter-spacing:8px;">Good Luck</p>
+                </div>
+            `;
+        }
+    }
+
+    function checkInput() {
+        clearTimeout(actionTimer);
+        const err = document.getElementById('err');
+        err.style.display = 'block';
+        
+        // 降低輸入錯誤時的抖動暴走頻率
+        quizBox.style.animationDuration = '0.2s'; 
+        
+        setTimeout(() => {
+            quizBox.style.animationDuration = '0.6s';
+            nextQuestion();
+        }, 2500);
+    }
+</script>
+
+</body>
+</html>
